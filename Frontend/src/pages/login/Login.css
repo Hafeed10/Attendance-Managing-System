@@ -1,0 +1,26 @@
+/* Custom CSS for EduTrack Login Component */
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.mesh-gradient {
+    background-color: #f8f9ff;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(220,100%,90%,1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(230,100%,85%,1) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(200,100%,90%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(210,100%,92%,1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(225,100%,95%,1) 0px, transparent 50%);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
