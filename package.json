@@ -1,0 +1,19 @@
+{
+  "name": "attendance-system",
+  "version": "0.1.0",
+  "description": "Attendance Management System",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "start": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\"",
+    "frontend": "cd frontend && npm start",
+    "backend": "cd backend && npm start"
+  },
+  "dependencies": {
+    "axios": "^1.16.1"
+  }
+}
