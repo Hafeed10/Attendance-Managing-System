@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./User');
 
 const Faculty = sequelize.define('Faculty', {
   id: {
@@ -13,18 +12,25 @@ const Faculty = sequelize.define('Faculty', {
     allowNull: true,
   },
   assignedSubjects: {
-    type: DataTypes.JSON, // Stores array of subject IDs or names
+    type: DataTypes.JSON, // Stores array of subject IDs
     allowNull: true,
-    defaultValue: []
+    defaultValue: [],
+  },
+  assignedClasses: {
+    type: DataTypes.JSON, // Stores array of class IDs (PRD 4.1.3)
+    allowNull: true,
+    defaultValue: [],
+  },
+  isTemporary: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: 'True if this faculty currently has temporary access assignments',
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  }
+    comment: 'FK to users table',
+  },
 }, {
   tableName: 'faculties',
   timestamps: true,

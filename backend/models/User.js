@@ -23,9 +23,18 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('admin', 'faculty', 'parent'),
+    type: DataTypes.ENUM('admin', 'faculty', 'student', 'parent'),
     allowNull: false,
     defaultValue: 'faculty',
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    comment: 'Soft-delete / disable account without removing data',
+  },
+  lastLogin: {
+    type: DataTypes.DATE,
+    allowNull: true,
   },
 }, {
   tableName: 'users',

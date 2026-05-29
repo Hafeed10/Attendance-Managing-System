@@ -1,61 +1,138 @@
 # Attendance Managing System - Admin Backend API
 
-This repository contains the backend Express/Node.js application for the Admin Panel of the Attendance Managing System.
+This backend provides the Admin Panel API for the Attendance Managing System.
 
 ## Architecture
-
-We are using a standard **Model-View-Controller (MVC)** architecture without the "View" (since the frontend team handles that). 
-- **Database**: MariaDB / MySQL
+- **Server**: Node.js + Express
 - **ORM**: Sequelize
-- **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: Bcrypt
+- **Database**: MySQL / MariaDB
+- **Authentication**: JWT
+- **Validation**: Joi
+- **Security**: Helmet, rate limiting, CORS
 
-## For the Team: How to Connect and Run
+## Setup
 
-If you are just pulling this code, follow these steps to get the server running on your machine:
-
-### 1. Install Dependencies
-Make sure you have Node.js installed, then run:
+### 1. Install dependencies
 ```bash
+cd backend
 npm install
 ```
 
-### 2. Setup the Database Connection
-1. Duplicate the `.env.example` file and rename it to `.env`.
-2. Ensure you have MySQL or MariaDB running on your machine.
-3. Open your database (via terminal or a GUI tool like phpMyAdmin/DBeaver) and run this SQL command:
-   ```sql
-   CREATE DATABASE IF NOT EXISTS attendance_system;
-   ```
-4. Update the `.env` file with your local database username and password (default is usually user: `root`, password: ``).
+### 2. Configure environment variables
+Copy `.env.example` to `.env` and set your database credentials.
 
-### 3. Start the Server
-Run the development server using nodemon:
+Example values:
+```dotenv
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=attendance_system
+DB_DIALECT=mysql
+JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+JWT_EXPIRES_IN=8h
+PORT=5001
+NODE_ENV=development
+```
+
+### 3. Create the database
+```sql
+CREATE DATABASE IF NOT EXISTS attendance_system;
+```
+
+### 4. Start the server
 ```bash
 npm run dev
 ```
 
-> **Note**: When you run the server for the first time, Sequelize will automatically `sync` and generate all the database tables based on our Models! It will also automatically create a super admin account (`admin@school.com` / `admin123`) so you can log in immediately.
+The backend starts on `http://localhost:5001`.
 
----
+When the server starts for the first time, it will automatically create a default admin user if none exists:
+- Email: `admin@school.com`
+- Password: `admin123`
 
-## For the Product Manager: Implementation Summary
+## API Overview
 
-This backend currently successfully implements **Phase 1 (Setup & Database Design)**, **Phase 2 (Security)** and the beginnings of **Phase 3 (Core CRUD)** as requested in the PRD.
+### Authentication
+- `POST /api/login`
+  - Body: `{ "email": "admin@school.com", "password": "admin123" }`
+  - Returns a JWT token.
 
-### Implemented Features:
-- **Database Schemas**: Designed and created relational models for `User`, `Faculty`, and `Student`.
-- **JWT Authentication Flow**: Endpoints are secured. Only users with an `admin` role in their JWT can access the management routes.
-- **Admin Management APIs**: Built endpoints to add Faculty and Students which successfully parse JSON bodies and insert rows into the database.
+### Admin Routes
+All admin endpoints require `Authorization: Bearer <token>`.
 
-### API Routes Available:
-| Method | Route | Description | Protection |
-|--------|-------|-------------|------------|
-| `GET` | `/` | Health check / Welcome route | Public |
-| `POST` | `/api/login` | Login for all users, returns JWT token | Public |
-| `POST` | `/api/admin/faculty` | Add a new Faculty member | Admin Only |
-| `POST` | `/api/admin/student` | Add a new Student | Admin Only |
+#### Faculty Management
+- `POST /api/admin/faculty`
+  - Validates faculty creation payload.
+- `GET /api/admin/faculty`
+- `GET /api/admin/faculty/:id`
+- `PUT /api/admin/faculty/:id`
+  - Validates faculty update payload.
+- `DELETE /api/admin/faculty/:id`
 
-### Next Steps:
-- Build out the endpoints for Edit/Delete on Faculty and Students.
-- Create schemas and logic for tracking daily Attendance.
+#### Student Management
+- `POST /api/admin/student`
+  - Validates student creation payload.
+- `GET /api/admin/student`
+- `GET /api/admin/student/:id`
+- `PUT /api/admin/student/:id`
+  - Validates student update payload.
+- `DELETE /api/admin/student/:id`
+
+#### Class Management
+- `POST /api/admin/class`
+  - Validates class creation payload.
+- `GET /api/admin/class`
+- `GET /api/admin/class/:id`
+- `PUT /api/admin/class/:id`
+  - Validates class update payload.
+- `DELETE /api/admin/class/:id`
+
+#### Subject Management
+- `POST /api/admin/subject`
+  - Validates subject creation payload.
+- `GET /api/admin/subject`
+- `GET /api/admin/subject/:id`
+- `PUT /api/admin/subject/:id`
+  - Validates subject update payload.
+- `DELETE /api/admin/subject/:id`
+
+#### Temporary Access Management
+- `POST /api/admin/temporary-access`
+  - Validates temporary access creation payload.
+- `GET /api/admin/temporary-access`
+- `GET /api/admin/temporary-access/:id`
+- `PUT /api/admin/temporary-access/:id`
+  - Validates temporary access update payload.
+- `DELETE /api/admin/temporary-access/:id`
+
+#### Audit Logs
+- `GET /api/admin/audit-logs`
+
+#### Report Generation
+- `POST /api/admin/reports/class-monthly`
+  - Validates class report payload.
+- `POST /api/admin/reports/student-monthly`
+  - Validates student report payload.
+- `POST /api/admin/reports/defaulters`
+  - Validates defaulter report payload.
+- `GET /api/admin/reports`
+- `GET /api/admin/reports/download/:fileName`
+
+## Notes
+- Request validation is enforced on all create/update admin routes.
+- Invalid request bodies return `400 Validation Error` with detailed messages.
+- Admin routes are protected by JWT and role checks.
+
+## Status
+The backend now supports:
+- Admin user and role-based authentication
+- Faculty, Student, Class, Subject CRUD
+- Temporary faculty access assignments
+- Audit log streaming
+- Report generation endpoints with PDF support
+
+## Useful commands
+```bash
+cd backend
+npm run dev
+```

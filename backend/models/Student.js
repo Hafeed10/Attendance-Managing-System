@@ -11,9 +11,10 @@ const Student = sequelize.define('Student', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  classAssigned: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  classId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'FK to classes table (PRD 4.1.4)',
   },
   division: {
     type: DataTypes.STRING,
@@ -26,7 +27,12 @@ const Student = sequelize.define('Student', {
   parentContact: {
     type: DataTypes.STRING,
     allowNull: true,
-  }
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'FK to users table — for student login (PRD 6.1)',
+  },
 }, {
   tableName: 'students',
   timestamps: true,

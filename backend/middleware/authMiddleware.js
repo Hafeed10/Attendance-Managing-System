@@ -1,37 +1,53 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET_KEY = "super_secret_attendance_key"; // Must match the one in server.js
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_attendance_key';
 
 // Middleware to verify the JWT token
 const verifyToken = (req, res, next) => {
-    // 1. Get the token from the headers
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Access denied. No token provided.' });
-    }
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
 
-    const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1];
 
-    try {
-        // 2. Verify the token
-        const decoded = jwt.verify(token, SECRET_KEY);
-        // 3. Attach the decoded user information to the request object
-        req.user = decoded;
-        next(); // Move to the next middleware or controller
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token.' });
-    }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid or expired token.' });
+  }
 };
 
 // Middleware to check if the user is an admin
 const isAdmin = (req, res, next) => {
-    if (!req.user || req.user.role !== 'admin') {
-        return res.status(403).json({ error: 'Access denied. Requires admin privileges.' });
-    }
-    next();
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied. Requires admin privileges.' });
+  }
+  next();
+};
+
+// Middleware to check if the user is faculty (or admin, since admin can do everything)
+const isFaculty = (req, res, next) => {
+  if (!req.user || (req.user.role !== 'faculty' && req.user.role !== 'admin')) {
+    return res.status(403).json({ error: 'Access denied. Requires faculty privileges.' });
+  }
+  next();
+};
+
+// Middleware to check if the user is a student or parent
+const isStudentOrParent = (req, res, next) => {
+  const allowed = ['student', 'parent', 'admin'];
+  if (!req.user || !allowed.includes(req.user.role)) {
+    return res.status(403).json({ error: 'Access denied. Requires student or parent privileges.' });
+  }
+  next();
 };
 
 module.exports = {
-    verifyToken,
-    isAdmin
+  verifyToken,
+  isAdmin,
+  isFaculty,
+  isStudentOrParent,
 };
