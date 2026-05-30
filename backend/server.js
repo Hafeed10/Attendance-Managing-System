@@ -2,25 +2,41 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
+require('dotenv').config();
 
 // Import database models and connection
 const { sequelize, User } = require('./models');
 
 // Import your new Admin Routes
 const adminRoutes = require('./routes/adminRoutes');
+const { validate, schemas } = require('./middleware/validate');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-app.use(express.json()); 
-app.use(cors()); 
+app.use(express.json());
+app.use(cors());
+app.use(helmet());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-const SECRET_KEY = "super_secret_attendance_key";
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use(limiter);
+
+const SECRET_KEY = process.env.JWT_SECRET || 'super_secret_attendance_key';
 
 // Basic test route so the browser doesn't show "Cannot GET /"
 app.get('/', (req, res) => {
     res.send("Welcome to the Attendance System Admin Backend!");
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', validate(schemas.login), async (req, res) => {
     try {
         const { email, password } = req.body;
         
@@ -38,11 +54,7 @@ app.post('/api/login', async (req, res) => {
         }
 
         // 3. Create the Token
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
-            SECRET_KEY,
-            { expiresIn: '8h' }
-        );
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, SECRET_KEY, { expiresIn: '8h' });
 
         res.json({
             message: "Login successful!",
@@ -55,13 +67,25 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Mount the Admin routes
 app.use('/api/admin', adminRoutes);
 
+// Faculty routes
+const facultyRoutes = require('./routes/facultyRoutes');
+app.use('/api/faculty', facultyRoutes);
+
+// User routes
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/user', userRoutes);
+
+// Global error handler (should be after routes)
+app.use(errorHandler);
+
 // Sync database and start server
-const PORT = 5001;
-sequelize.sync({ alter: true }).then(async () => {
-    console.log("✅ MySQL Database connected and synced!");
+const PORT = process.env.PORT || 5001;
+
+const syncOptions = process.env.NODE_ENV === 'production' ? {} : { alter: true };
+sequelize.sync(syncOptions).then(async () => {
+    console.log('✅ MySQL Database connected and synced!');
     
     // Seed an initial admin user if none exists
     const adminCount = await User.count({ where: { role: 'admin' } });

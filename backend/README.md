@@ -18,6 +18,9 @@ cd backend
 npm install
 ```
 
+### Implementation Plan
+A detailed implementation plan for the admin backend is available in `IMPLEMENTATION_PLAN.md`. Share that file with the team to explain the current status, completed work, and next steps.
+
 ### 2. Configure environment variables
 Copy `.env.example` to `.env` and set your database credentials.
 
@@ -118,10 +121,27 @@ All admin endpoints require `Authorization: Bearer <token>`.
 - `GET /api/admin/reports`
 - `GET /api/admin/reports/download/:fileName`
 
+### Faculty Routes
+All faculty endpoints require `Authorization: Bearer <token>` and `faculty` role.
+
+- `POST /api/faculty/attendance` - Mark attendance
+- `GET /api/faculty/attendance` - Get attendance for a class on a date
+- `PUT /api/faculty/attendance/:id` - Edit attendance record
+- `DELETE /api/faculty/attendance/:id` - Delete attendance record
+- `GET /api/faculty/my-classes` - Get assigned classes and subjects
+- `GET /api/faculty/student-dashboard/:studentId` - View specific student's attendance dashboard
+
+### User (Student/Parent) Routes
+All user endpoints require `Authorization: Bearer <token>` and `student` or `parent` role.
+
+- `GET /api/user/dashboard` - Get overall attendance percentage, subject-wise, and warnings
+- `GET /api/user/monthly-summary` - Get monthly attendance summary
+- `GET /api/user/download-report` - Generate and download monthly report PDF
+
 ## Notes
 - Request validation is enforced on all create/update admin routes.
 - Invalid request bodies return `400 Validation Error` with detailed messages.
-- Admin routes are protected by JWT and role checks.
+- Admin, Faculty, and User routes are protected by JWT and role checks.
 
 ## Status
 The backend now supports:
@@ -130,6 +150,9 @@ The backend now supports:
 - Temporary faculty access assignments
 - Audit log streaming
 - Report generation endpoints with PDF support
+- Admin Dashboard with metrics and defaulter lists
+- Faculty Panel (Mark/Edit attendance, view assigned classes)
+- User Panel (Student dashboard, download reports)
 
 ## Useful commands
 ```bash

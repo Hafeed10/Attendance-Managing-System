@@ -43,6 +43,11 @@ const {
 	listReports,
 	downloadReport,
 } = require('../controllers/reportController');
+const {
+	getDashboardStats,
+	getClassDashboard,
+	getDefaultersList
+} = require('../controllers/dashboardController');
 const { validate, schemas } = require('../middleware/validate');
 
 // Import authentication middleware
@@ -93,5 +98,10 @@ router.post('/reports/student-monthly', verifyToken, isAdmin, validate(schemas.g
 router.post('/reports/defaulters', verifyToken, isAdmin, validate(schemas.generateDefaulterReport), generateDefaulterReport);
 router.get('/reports', verifyToken, isAdmin, listReports);
 router.get('/reports/download/:fileName', verifyToken, isAdmin, downloadReport);
+
+// Dashboard
+router.get('/dashboard/stats', verifyToken, isAdmin, getDashboardStats);
+router.get('/dashboard/class/:classId', verifyToken, isAdmin, getClassDashboard);
+router.get('/dashboard/defaulters', verifyToken, isAdmin, getDefaultersList);
 
 module.exports = router;
