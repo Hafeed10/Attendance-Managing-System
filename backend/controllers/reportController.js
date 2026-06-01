@@ -88,20 +88,26 @@ const listReports = async (req, res) => {
 
 const downloadReport = async (req, res) => {
   try {
-    const fileName = path.basename(req.params.fileName);
-    const basePath = reportService.REPORTS_DIR;
-    const joinedPath = path.join(basePath, fileName);
-    const fullPath = path.normalize(joinedPath);
+    const { reportId } = req.params;
+    // Fetch the report using its primary key (trusted identifier)
+    const report = await AttendanceReport.findByPk(reportId);
+    if (!report) {
+      return res.status(404).json({ error: 'Report record not found' });
+    }
 
+    const basePath = reportService.REPORTS_DIR;
+    // Use only the filename from the DB to avoid '..' or absolute paths
+    const safeFileName = path.basename(report.filePath);
+    const fullPath = path.join(basePath, safeFileName);
+    // Verify the resolved path stays within the reports directory
     if (!fullPath.startsWith(basePath)) {
       return res.status(403).json({ error: 'Invalid path specified' });
     }
-
     if (!fs.existsSync(fullPath)) {
       return res.status(404).json({ error: 'Report file not found' });
     }
-
-    res.download(fullPath, fileName);
+    // Send the file using the original filename
+    res.download(fullPath, safeFileName);
   } catch (error) {
     console.error('Error downloading report:', error);
     res.status(500).json({ error: 'Server error while downloading report' });
