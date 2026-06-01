@@ -89,13 +89,19 @@ const listReports = async (req, res) => {
 const downloadReport = async (req, res) => {
   try {
     const fileName = path.basename(req.params.fileName);
-    const filePath = reportService.getReportFilePath(fileName);
+    const basePath = reportService.REPORTS_DIR;
+    const joinedPath = path.join(basePath, fileName);
+    const fullPath = path.normalize(joinedPath);
 
-    if (!fs.existsSync(filePath)) {
+    if (!fullPath.startsWith(basePath)) {
+      return res.status(403).json({ error: 'Invalid path specified' });
+    }
+
+    if (!fs.existsSync(fullPath)) {
       return res.status(404).json({ error: 'Report file not found' });
     }
 
-    res.download(filePath, fileName);
+    res.download(fullPath, fileName);
   } catch (error) {
     console.error('Error downloading report:', error);
     res.status(500).json({ error: 'Server error while downloading report' });
