@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > This is a **Desktop Application** built with **Python 3.12** using **Tkinter** for the GUI. It does not use any backend databases like MySQL or Supabase. All data is stored in local CSV files for simplicity and offline access.
 
-Edu-Tracker is a comprehensive desktop application designed to streamline attendance tracking and student progress monitoring. It provides an intuitive interface for teachers and administrators to manage student information, record daily attendance, and generate detailed reports.
+Edu-Track is a comprehensive desktop application designed to streamline attendance tracking and student progress monitoring. It provides an intuitive interface for teachers and administrators to manage student information, record daily attendance, and generate detailed reports.
 
 ## ✨ Key Features
 
